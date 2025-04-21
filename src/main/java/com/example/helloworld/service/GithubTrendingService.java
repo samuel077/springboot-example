@@ -2,6 +2,8 @@ package com.example.helloworld.service;
 
 import com.example.helloworld.db.model.RepoInfo;
 import com.example.helloworld.db.repository.RepoInfoRepository;
+import com.example.helloworld.service.model.GithubRepoItem;
+import com.example.helloworld.service.model.GithubRepoResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -20,7 +24,7 @@ public class GithubTrendingService {
     private final RepoInfoRepository repoInfoRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private final String GITHUB_TRENDING_API = "https://github-trending-api.waningflow.com/repositories?since=daily";
+    private final String GITHUB_TRENDING_API = "https://api.github.com/search/repositories?q=stars:%3E1000&sort=stars&order=desc";
 
     public List<RepoInfo> getAllRepos() {
         return repoInfoRepository.findAll();
@@ -31,22 +35,26 @@ public class GithubTrendingService {
             RestTemplate restTemplate = new RestTemplate();
             String json = restTemplate.getForObject(GITHUB_TRENDING_API, String.class);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode root = objectMapper.readTree(json);
+            ObjectMapper mapper = new ObjectMapper();
+            GithubRepoResponse response = mapper.readValue(json, GithubRepoResponse.class);
+            List<GithubRepoItem> items = response.getItems();
+            System.out.println("抓到熱門 repo 數量：" + items.size());
 
-            List<RepoInfo> repos = StreamSupport.stream(root.spliterator(), false)
-                    .map(node -> RepoInfo.builder()
-                            .name(node.get("name").asText())
-                            .author(node.get("author").asText())
-                            .url(node.get("url").asText())
-                            .description(node.get("description").asText())
-                            .language(node.get("language").asText())
-                            .stars(node.get("stars").asInt())
+            List<RepoInfo> repos = items.stream()
+                    .map(item -> RepoInfo.builder()
+                            .name(item.getName())
+                            .fullName(item.getFull_name())
+                            .url(item.getHtml_url())
+                            .description(item.getDescription())
+                            .language(item.getLanguage())
+                            .stars(item.getStargazers_count())
                             .build())
                     .collect(Collectors.toList());
 
             // 存進 PostgreSQL
             repoInfoRepository.saveAll(repos);
+
+            System.out.println("✅ 寫入 DB 成功，筆數：" + repos.size());
 
             // 存進 Redis（清除舊的再存新的）
             redisTemplate.delete("trending");

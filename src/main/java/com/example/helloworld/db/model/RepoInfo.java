@@ -16,7 +16,7 @@ public class RepoInfo {
     private Long id;
 
     private String name;
-    private String author;
+    private String fullName;
     private String url;
     private String description;
     private String language;
