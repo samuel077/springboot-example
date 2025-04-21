@@ -1,8 +1,10 @@
 package com.example.helloworld.service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GithubRepoItem {
     private String name;
     private String full_name;
