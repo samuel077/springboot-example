@@ -22,6 +22,10 @@ public class GithubTrendingService {
 
     private final String GITHUB_TRENDING_API = "https://github-trending-api.waningflow.com/repositories?since=daily";
 
+    public List<RepoInfo> getAllRepos() {
+        return repoInfoRepository.findAll();
+    }
+
     public void fetchAndStoreTrendingRepos() {
         try {
             RestTemplate restTemplate = new RestTemplate();
