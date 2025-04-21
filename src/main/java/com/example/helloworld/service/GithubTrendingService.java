@@ -24,7 +24,7 @@ public class GithubTrendingService {
     private final RepoInfoRepository repoInfoRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private final String GITHUB_TRENDING_API = "https://api.github.com/search/repositories?q=stars:%3E1000&sort=stars&order=desc";
+    private final String GITHUB_TRENDING_API = "https://api.github.com/search/repositories?q=stars:>1000&sort=stars&order=desc";
 
     public List<RepoInfo> getAllRepos() {
         return repoInfoRepository.findAll();
