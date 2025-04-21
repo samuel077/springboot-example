@@ -16,9 +16,16 @@ public class RepoInfo {
     private Long id;
 
     private String name;
+
+    @Column(length = 512)
     private String fullName;
-    private String url;
+
+    @Column(length = 1000)
     private String description;
+
     private String language;
     private int stars;
+
+    @Column(length = 512)
+    private String url;
 }
