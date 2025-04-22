@@ -4,6 +4,7 @@ import com.example.helloworld.controller.model.response.RepoPageResponse;
 import com.example.helloworld.db.model.RepoInfo;
 import com.example.helloworld.db.repository.RepoInfoRepository;
 import com.example.helloworld.service.GithubTrendingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ public class TrendingController {
     private final GithubTrendingService service;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RepoInfoRepository repoInfoRepository;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/refresh")
     public String refreshTrending() {
@@ -37,10 +39,12 @@ public class TrendingController {
         String cacheKey = "repos:page:" + page + ":size:" + size;
 
         // 1. 嘗試從 Redis 拿資料
-        RepoPageResponse cached = (RepoPageResponse) redisTemplate.opsForValue().get(cacheKey);
+        Object cached = redisTemplate.opsForValue().get(cacheKey);
+
         if (cached != null) {
             System.out.println("🔥 從 Redis 快取中回傳 page " + page);
-            return cached;
+            RepoPageResponse response = objectMapper.convertValue(cached, RepoPageResponse.class);
+            return response;
         }
 
         // 2. 查 DB + 寫入 Redis
