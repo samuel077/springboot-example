@@ -7,15 +7,14 @@ import com.example.helloworld.service.model.GithubRepoResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.sql.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +25,8 @@ public class GithubTrendingService {
 
     private final String GITHUB_TRENDING_API = "https://api.github.com/search/repositories?q=stars:>1000&sort=stars&order=desc";
 
-    public List<RepoInfo> getAllRepos() {
-        return repoInfoRepository.findAll();
+    public Page<RepoInfo> getAllRepos(Pageable pageable) {
+        return repoInfoRepository.findAll(pageable);
     }
 
     public void fetchAndStoreTrendingRepos() {
