@@ -25,10 +25,6 @@ public class GithubTrendingService {
 
     private final String GITHUB_TRENDING_API = "https://api.github.com/search/repositories?q=stars:>1000&sort=stars&order=desc";
 
-    public Page<RepoInfo> getAllRepos(Pageable pageable) {
-        return repoInfoRepository.findAll(pageable);
-    }
-
     public void fetchAndStoreTrendingRepos() {
         try {
             RestTemplate restTemplate = new RestTemplate();
