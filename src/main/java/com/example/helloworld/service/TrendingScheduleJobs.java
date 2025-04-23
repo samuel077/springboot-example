@@ -10,7 +10,7 @@ public class TrendingScheduleJobs {
 
     private final GithubTrendingService githubTrendingService;
 
-    @Scheduled(cron = "0 * * * * *") // 每1分鐘執行一次
+    @Scheduled(cron = "0 0 1 * * *") // 每天凌晨1點
     public void updateTrendingDaily() {
         System.out.println("🕐 自動排程啟動 → 更新 GitHub Trending 資料");
 
