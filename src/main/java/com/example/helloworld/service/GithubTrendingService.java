@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +60,14 @@ public class GithubTrendingService {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void clearRepoCache() {
+        Set<String> keys = redisTemplate.keys("repos:*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+            System.out.println("🧹 清除 Redis 快取，共刪除 " + keys.size() + " 筆");
         }
     }
 
