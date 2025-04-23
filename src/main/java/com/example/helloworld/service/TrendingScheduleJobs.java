@@ -14,8 +14,7 @@ public class TrendingScheduleJobs {
     public void updateTrendingDaily() {
         System.out.println("🕐 自動排程啟動 → 更新 GitHub Trending 資料");
 
-        githubTrendingService.clearRepoCache();
-
+        githubTrendingService.clearRepoCacheAndDB();
         githubTrendingService.fetchAndStoreTrendingRepos();
 
         System.out.println("🕐 自動排程結束");

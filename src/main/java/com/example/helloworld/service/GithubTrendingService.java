@@ -63,7 +63,8 @@ public class GithubTrendingService {
         }
     }
 
-    public void clearRepoCache() {
+    public void clearRepoCacheAndDB() {
+        repoInfoRepository.deleteAll();
         Set<String> keys = redisTemplate.keys("repos:*");
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);

@@ -12,11 +12,6 @@ import lombok.*;
 public class RepoInfo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-
     @Column(length = 512)
     private String fullName;
 
@@ -25,6 +20,7 @@ public class RepoInfo {
 
     private String language;
     private int stars;
+    private String name;
 
     @Column(length = 512)
     private String url;

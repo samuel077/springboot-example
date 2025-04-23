@@ -34,6 +34,12 @@ public class TrendingController {
         return "OK";
     }
 
+    @GetMapping("/manual-clear-data")
+    public String manualClearStorage() {
+        service.clearRepoCacheAndDB();
+        return "Remove all OK";
+    }
+
     @GetMapping("/repos")
     public RepoPageResponse getRepos(@RequestParam int page, @RequestParam int size) {
         String cacheKey = "repos:page:" + page + ":size:" + size;
