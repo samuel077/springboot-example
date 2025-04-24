@@ -1,15 +1,19 @@
 spring:
   datasource:
-    url: ${DATABASE_URL}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/trending_db}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+  redis:
+    host: ${SPRING_REDIS_HOST:redis}
+    port: ${SPRING_REDIS_PORT:6379}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
-
-  data:
-    redis:
-      url: ${REDIS_URL}
+    properties:
+      hibernate:
+        format_sql: true
 
 logging:
   level:

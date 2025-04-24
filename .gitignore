@@ -3,3 +3,18 @@
 build/
 out/
 *.iml
+
+# 避免將環境變數暴露到 GitHub
+.env
+.env.*
+
+# Gradle / Build
+/build
+.gradle
+
+# IDE 設定
+.idea/
+*.iml
+
+# Docker 產生的 volume
+pgdata/
