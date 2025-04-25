@@ -29,3 +29,14 @@ jobs:
           docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
 
+      - name: Deploy to EC2 over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/trending-app:latest
+            docker stop trending-app || true
+            docker rm trending-app || true
+            docker run -d --name trending-app -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/trending-app:latest
