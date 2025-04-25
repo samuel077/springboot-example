@@ -31,7 +31,7 @@ public class TrendingController {
 
     @GetMapping("/hello-ci")
     public String ciHint() {
-        return "Hello, CI, v2";
+        return "Hello, CI, v2, with CD to EC2";
     }
 
     @GetMapping("/refresh")
