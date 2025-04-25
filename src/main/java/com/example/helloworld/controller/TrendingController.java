@@ -28,6 +28,12 @@ public class TrendingController {
     private final RepoInfoRepository repoInfoRepository;
     private final ObjectMapper objectMapper;
 
+
+    @GetMapping("/hello-ci")
+    public String ciHint() {
+        return "Hello, CI";
+    }
+
     @GetMapping("/refresh")
     public String refreshTrending() {
         service.fetchAndStoreTrendingRepos();
