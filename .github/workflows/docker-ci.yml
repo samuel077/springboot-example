@@ -40,3 +40,14 @@ jobs:
             docker stop trending-app || true
             docker rm trending-app || true
             docker run -d --name trending-app -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/trending-app:latest
+
+      - name: 📤 Upload docker-compose.yml and .env to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: |
+            docker-compose.yml
+            .env
+          target: /home/ec2-user/app/
