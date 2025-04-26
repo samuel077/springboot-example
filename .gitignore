@@ -5,8 +5,8 @@ out/
 *.iml
 
 # 避免將環境變數暴露到 GitHub
-#.env
-#.env.*
+.env
+.env.*
 
 # Gradle / Build
 /build
