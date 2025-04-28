@@ -4,11 +4,9 @@ import com.example.helloworld.db.model.RepoInfo;
 import com.example.helloworld.db.repository.RepoInfoRepository;
 import com.example.helloworld.service.model.GithubRepoItem;
 import com.example.helloworld.service.model.GithubRepoResponse;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GithubTrendingService {
 
     private final RepoInfoRepository repoInfoRepository;
@@ -50,14 +49,13 @@ public class GithubTrendingService {
             // 存進 PostgreSQL
             repoInfoRepository.saveAll(repos);
 
-            System.out.println("✅ 寫入 DB 成功，筆數：" + repos.size());
+            log.info("Write DB success, count: {}", repos.size());
 
             // 存進 Redis（清除舊的再存新的）
             redisTemplate.delete("trending");
             redisTemplate.opsForList().rightPushAll("trending", repos);
 
-            System.out.println("✅ GitHub trending repos 已寫入 DB & Redis");
-
+            log.info("[Debug] github trending repo write to DB and Redis successfully");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,7 +66,7 @@ public class GithubTrendingService {
         Set<String> keys = redisTemplate.keys("repos:*");
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);
-            System.out.println("🧹 清除 Redis 快取，共刪除 " + keys.size() + " 筆");
+            log.info("[Debug] remove redis successfully, total key count: {}", keys.size());
         }
     }
 

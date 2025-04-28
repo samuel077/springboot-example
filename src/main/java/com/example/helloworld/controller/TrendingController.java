@@ -6,6 +6,7 @@ import com.example.helloworld.db.repository.RepoInfoRepository;
 import com.example.helloworld.service.GithubTrendingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import java.time.Duration;
 @CrossOrigin(origins = "*")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class TrendingController {
 
     private final GithubTrendingService service;
@@ -31,6 +33,7 @@ public class TrendingController {
 
     @GetMapping("/hello-ci")
     public String ciHint() {
+        log.info("[Debug] First logging logging here");
         return "Hello, CI, After changing the logs";
     }
 
@@ -49,12 +52,13 @@ public class TrendingController {
     @GetMapping("/repos")
     public RepoPageResponse getRepos(@RequestParam int page, @RequestParam int size) {
         String cacheKey = "repos:page:" + page + ":size:" + size;
+        log.info("[Debug] cacheKey: {}", cacheKey);
 
         // 1. 嘗試從 Redis 拿資料
         Object cached = redisTemplate.opsForValue().get(cacheKey);
 
         if (cached != null) {
-            System.out.println("🔥 從 Redis 快取中回傳 page " + page);
+            log.info("[Debug] reading data from redis for page: {}", page);
             RepoPageResponse response = objectMapper.convertValue(cached, RepoPageResponse.class);
             return response;
         }
@@ -71,7 +75,7 @@ public class TrendingController {
         );
 
         redisTemplate.opsForValue().set(cacheKey, response, Duration.ofMinutes(30));
-        System.out.println("💾 Redis miss → 從 DB 查資料並快取 page " + page);
+        log.info("[Debug] redis miss, get data from DB and cache it");
 
         return response;
     }
