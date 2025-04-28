@@ -18,6 +18,8 @@ spring:
 logging:
   level:
     org.springframework: INFO
+  file:
+    name: /var/log/springboot/application.log
 
 app:
   version: 1.0.0
