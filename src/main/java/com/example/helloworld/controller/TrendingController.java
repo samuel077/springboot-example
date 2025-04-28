@@ -31,7 +31,7 @@ public class TrendingController {
 
     @GetMapping("/hello-ci")
     public String ciHint() {
-        return "Hello, CI, it's Sam.";
+        return "Hello, CI, After changing the logs";
     }
 
     @GetMapping("/refresh")
