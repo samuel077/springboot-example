@@ -12,6 +12,7 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - backend
+    restart: always
 
   redis:
     image: redis:7
@@ -39,8 +40,11 @@ services:
         condition: service_healthy
       postgres:
         condition: service_started
+    volumes:
+      - /var/log/springboot:/var/log/springboot
     networks:
       - backend
+    restart: always
 
 volumes:
   pgdata:
