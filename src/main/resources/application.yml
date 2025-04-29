@@ -17,15 +17,15 @@ spring:
   cloud:
     aws:
       credentials:
-        access-key: ${AWS_ACCESS_KEY}
-        secret-key: ${AWS_SECRET_KEY}
+        access-key: ${SPRING_AWS_KEY}
+        secret-key: ${SPRING_AWS_SECRET}
       region:
         static: ap-northeast-1
   mail:
     host: sandbox.smtp.mailtrap.io
     port: 587
-    username: ${MAIL_USER_NAME}
-    password: ${MAIL_USER_PASSWORD}
+    username: 1c2b0d7f4f4d1d
+    password: 76f7b23714f29f
     properties:
       mail:
         smtp:
@@ -46,7 +46,7 @@ app:
   version: 1.0.0
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: 2JY4mcOkbKHGRFqCjF5eVzUnm7whbZsCHmGMk/f3Nh6OTMWrQfh4gng58jjCqHgMtApPW7QZVQmuSkaLCe7sKw==
   access-token-validity: 3600000 # 1小時 (單位是毫秒)
 
 cloud:
@@ -56,6 +56,5 @@ cloud:
     stack:
       auto: false
   sqs:
-    queue-name: ${MFA_QUEUE_NAME}
-    endpoint: ${MFA_QUEUE_URL}
-
+    queue-name: mfa-email-queue
+    endpoint: https://sqs.ap-northeast-1.amazonaws.com/876997124426/mfa-email-queue
