@@ -7,21 +7,54 @@ plugins {
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
+java {
+	sourceCompatibility = '17'
+}
+
 repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+	imports {
+		// AWS Spring Cloud 依賴管理 (Spring Boot 3.x 專用)
+		mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:3.0.2"
+		// AWS SDK (低階 SQS client)
+		mavenBom "software.amazon.awssdk:bom:2.25.14"
+	}
+}
+
 dependencies {
+	// 🌱 Spring Boot 核心功能
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// 🛠️ 資料存取
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.postgresql:postgresql'
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
+	// 🔐 安全性 (密碼加密用 PasswordEncoder)
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// ✉️ Email 寄送
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// 📦 AWS SQS（支援 @SqsListener)
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter'
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+
+	// 🔐 JWT 驗證
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// 🧰 Lombok (簡化 POJO 開發)
 	implementation 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
+	// 🔬 測試
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
