@@ -22,7 +22,7 @@ spring:
       region:
         static: ap-northeast-1
   mail:
-    host: ${MAIL_HOST} # 開發環境可以用 Mailtrap 測試
+    host: sandbox.smtp.mailtrap.io
     port: 587
     username: ${MAIL_USER_NAME}
     password: ${MAIL_USER_PASSWORD}
