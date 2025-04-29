@@ -1,12 +1,12 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/trending_db}
-    username: ${SPRING_DATASOURCE_USERNAME:trending_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   redis:
-    host: ${SPRING_REDIS_HOST:redis}
-    port: ${SPRING_REDIS_PORT:6379}
+    host: ${SPRING_REDIS_HOST}
+    port: ${SPRING_REDIS_PORT}
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,12 +14,48 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESSK_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ap-northeast-1
+  mail:
+    host: ${MAIL_HOST} # 開發環境可以用 Mailtrap 測試
+    port: 587
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_USER_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 logging:
   level:
     org.springframework: INFO
   file:
     name: /var/log/springboot/application.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 app:
   version: 1.0.0
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-validity: 3600000 # 1小時 (單位是毫秒)
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-1
+    stack:
+      auto: false
+  sqs:
+    queue-name: ${MFA_QUEUE_NAME}
+    endpoint: ${MFA_QUEUE_URL}
+
