@@ -18,3 +18,7 @@ out/
 
 # Docker 產生的 volume
 pgdata/
+
+docker-compose-local.yml
+src/main/resources/application-local.yml
+
