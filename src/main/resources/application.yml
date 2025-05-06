@@ -5,7 +5,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   redis:
-    host: ${SPRING_REDIS_HOST}
+    host: localhost
     port: ${SPRING_REDIS_PORT}
   jpa:
     hibernate:
@@ -45,6 +45,7 @@ app:
 jwt:
   secret: 2JY4mcOkbKHGRFqCjF5eVzUnm7whbZsCHmGMk/f3Nh6OTMWrQfh4gng58jjCqHgMtApPW7QZVQmuSkaLCe7sKw==
   access-token-validity: 3600000 # 1小時 (單位是毫秒)
+  refresh-token-validity: 3600000 # 1 hr
 
 cloud:
   aws:

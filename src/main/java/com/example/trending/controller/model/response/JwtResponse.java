@@ -9,6 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class JwtResponse {
     private String accessToken;
+    private String refreshToken;
     private String tokenType = "Bearer";
     private long expiresIn; // 單位秒 (optional)
 }

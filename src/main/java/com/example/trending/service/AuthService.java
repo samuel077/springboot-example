@@ -1,5 +1,6 @@
 package com.example.trending.service;
 
+import com.example.trending.controller.model.response.JwtResponse;
 import com.example.trending.db.model.MFACode;
 import com.example.trending.db.model.User;
 import com.example.trending.db.repository.MFARepository;
@@ -58,7 +59,7 @@ public class AuthService {
     }
 
     @Transactional
-    public String verifyMfa(String email, String mfaCode) {
+    public JwtResponse verifyMfa(String email, String mfaCode) {
         log.info("[debug] check mfa with email: {}, and code: {}", email, mfaCode);
         // 1. 查找 User
         User user = userRepository.findByEmail(email)
@@ -86,6 +87,11 @@ public class AuthService {
         mfaRepository.deleteById(latestCode.getId());
 
         // 6. 頒發 JWT token
-        return jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
+        String accessToken= jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getRole().toString());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getEmail(), user.getRole().toString());
+        return JwtResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

@@ -1,10 +1,10 @@
 package com.example.trending.db.model;
 
+import com.example.trending.db.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -21,15 +21,13 @@ public class User {
     private String passwordHash;
 
     @Column(nullable = false)
-    private String role = "USER";
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
 
 }
