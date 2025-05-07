@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,6 +32,9 @@ public class TokenService {
 
     @Value("${jwt.refresh-token-validity}")
     private long refreshTokenValidity; // e.g., 604800000L for 7 days
+
+    @Value("${jwt.access-token-validity}")
+    private long accessTokenValidity;
 
     private SecretKey signingKey;
 
@@ -97,10 +101,42 @@ public class TokenService {
     public boolean isAccessTokenValid(String token) {
         try {
             Claims claims = extractClaims(token);
-            return claims.getExpiration().after(new Date());
+
+            if (tokenRepository.findByTokenAndTokenType(token, TokenType.ACCESS).filter(t -> !t.isRevoked() && !t.isExpired()).isPresent())
+                return claims.getExpiration().after(new Date());
+            else
+                return false;
         } catch (JwtException e) {
             return false;
         }
     }
 
+    public void saveToken(Long userId, String tokenStr, TokenType type) {
+        Token token = Token.builder()
+                .userId(userId)
+                .token(tokenStr)
+                .tokenType(type)
+                .revoked(false)
+                .expired(false)
+                .createdAt(new Date())
+                .expiresAt(new Date(System.currentTimeMillis() + (
+                        type == TokenType.ACCESS ? accessTokenValidity : refreshTokenValidity
+                )))
+                .build();
+
+        tokenRepository.save(token);
+    }
+
+    public void revokeAllTokens(Long userId) {
+        List<Token> tokens = tokenRepository.findAllByUserIdAndExpiredFalseAndRevokedFalse(userId);
+
+        if (tokens.isEmpty()) return;
+
+        tokens.forEach(t -> {
+            t.setRevoked(true);
+            t.setExpired(true);
+        });
+
+        tokenRepository.saveAll(tokens);
+    }
 }

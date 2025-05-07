@@ -66,37 +66,6 @@ public class JWTUtil {
                 .compact();
     }
 
-    public void saveRefreshTokenToDb(String tokenStr, Long userId, Date expiresAt) {
-        Token token = Token.builder()
-                .token(tokenStr)
-                .userId(userId)
-                .tokenType(TokenType.REFRESH)
-                .revoked(false)
-                .expired(false)
-                .createdAt(new Date())
-                .expiresAt(expiresAt)
-                .build();
-        tokenRepository.save(token);
-    }
-
-    public boolean isRefreshTokenValid(String tokenStr) {
-        return tokenRepository.findByToken(tokenStr)
-                .filter(token -> !token.isExpired() && !token.isRevoked())
-                .filter(token -> token.getExpiresAt().after(new Date()))
-                .isPresent();
-    }
-
-    public Claims parseToken(String jwtToken) {
-        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
-        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
-
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(jwtToken)
-                .getBody();
-    }
-
     public Claims extractClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey) // key 要 decode base64 過後的

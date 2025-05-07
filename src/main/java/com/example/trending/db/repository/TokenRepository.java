@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<Token, Long> {
     Optional<Token> findByToken(String token);
-
-    List<Token> findAllByUserIdAndExpiredFalseAndRevokedFalseAndTokenType(Long userId, TokenType tokenType);
+    Optional<Token> findByTokenAndTokenType(String token, TokenType tokenType);
+    List<Token> findAllByUserIdAndExpiredFalseAndRevokedFalse(Long userId);
 
     @Modifying
     @Query("UPDATE Token t SET t.revoked = true WHERE t.userId = :userId AND t.tokenType = :type")

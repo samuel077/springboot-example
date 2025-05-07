@@ -7,6 +7,7 @@ import com.example.trending.controller.model.auth.RegisterRequest;
 import com.example.trending.controller.model.auth.VerifyMfaRequest;
 import com.example.trending.controller.model.response.JwtResponse;
 import com.example.trending.db.enums.RoleType;
+import com.example.trending.db.enums.TokenType;
 import com.example.trending.db.model.Token;
 import com.example.trending.db.model.User;
 import com.example.trending.db.repository.TokenRepository;
@@ -17,6 +18,9 @@ import com.example.trending.service.messging.EmailQueueService;
 import com.example.trending.service.MfaService;
 import com.example.trending.utils.JWTUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -59,23 +63,33 @@ public class AuthController {
         return ResponseEntity.ok("Registered successfully");
     }
 
-
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
+        try {
+            Claims claims = jwtUtil.extractClaims(refreshToken);
+            Long userId = Long.parseLong(claims.getSubject());
+            String role = claims.get("role", String.class);
 
-        if (!tokenService.isRefreshTokenValid(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
+            // 查找 token 是否有效（存在且沒過期且沒被 revoke）
+            Optional<Token> storedTokenOpt = tokenRepository.findByTokenAndTokenType(refreshToken, TokenType.REFRESH);
+            if (storedTokenOpt.isEmpty() || storedTokenOpt.get().isExpired() || storedTokenOpt.get().isRevoked()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or revoked refresh token");
+            }
+
+            // 產生新 access token
+            String newAccessToken = jwtUtil.generateAccessToken(userId, null, role);
+
+            // 儲存新 access token
+            tokenService.saveToken(userId, newAccessToken, TokenType.ACCESS);
+
+            return ResponseEntity.ok(new RefreshTokenResponse(newAccessToken, refreshToken));
+
+        } catch (ExpiredJwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token expired");
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
-
-        Claims claims = tokenService.extractClaims(refreshToken);
-        Long userId = Long.parseLong(claims.getSubject());
-        String email = claims.get("email", String.class);
-        String role = claims.get("role", String.class);
-
-        String newAccessToken = jwtUtil.generateAccessToken(userId, email, role);
-
-        return ResponseEntity.ok(new RefreshTokenResponse(newAccessToken, refreshToken));
     }
 
     @PostMapping("/login")
@@ -85,26 +99,24 @@ public class AuthController {
     }
 
     @PostMapping("/verify-mfa")
-    public JwtResponse verifyMfa(@RequestBody VerifyMfaRequest request) {
+    public RefreshTokenResponse verifyMfa(@RequestBody VerifyMfaRequest request) {
         return authService.verifyMfa(request.getEmail(), request.getMfaCode());
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+        // 取出 Authorization Header 裡的 Bearer Token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body("Invalid Authorization header");
         }
 
-        String jwt = authHeader.substring(7);
-        Optional<Token> storedToken = tokenRepository.findByToken(jwt);
+        String token = authHeader.substring(7);
+        Claims claims = jwtUtil.extractClaims(token);
+        Long userId = Long.parseLong(claims.getSubject());
+        log.info("[claim] userId: {}", userId);
 
-        if (storedToken.isPresent()) {
-            Token token = storedToken.get();
-            token.setExpired(true);
-            token.setRevoked(true);
-            tokenRepository.save(token);
-        }
+        tokenService.revokeAllTokens(userId);
 
-        return ResponseEntity.ok("Logged out");
+        return ResponseEntity.ok("Logged out.");
     }
 }
