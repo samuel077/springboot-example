@@ -1,12 +1,17 @@
 package com.example.trending.service;
 
+import com.example.trending.controller.model.auth.RefreshTokenResponse;
+import com.example.trending.db.enums.TokenType;
 import com.example.trending.db.model.MFACode;
+import com.example.trending.db.model.Token;
 import com.example.trending.db.model.User;
 import com.example.trending.db.repository.MFARepository;
+import com.example.trending.db.repository.TokenRepository;
 import com.example.trending.db.repository.UserRepository;
 import com.example.trending.service.messging.EmailQueueService;
 import com.example.trending.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -14,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -27,6 +34,13 @@ public class AuthService {
     private final MfaService mfaService;
     private final MFARepository mfaRepository;
     private final JWTUtil jwtUtil;
+    private final TokenRepository tokenRepository;
+
+    @Value("${jwt.access-token-validity}")
+    private long accessTokenValidity;
+
+    @Value("${jwt.refresh-token-validity}")
+    private long refreshTokenValidity;
 
     @Transactional
     public void login(String email, String password) {
@@ -58,7 +72,7 @@ public class AuthService {
     }
 
     @Transactional
-    public String verifyMfa(String email, String mfaCode) {
+    public RefreshTokenResponse verifyMfa(String email, String mfaCode) {
         log.info("[debug] check mfa with email: {}, and code: {}", email, mfaCode);
         // 1. 查找 User
         User user = userRepository.findByEmail(email)
@@ -86,6 +100,42 @@ public class AuthService {
         mfaRepository.deleteById(latestCode.getId());
 
         // 6. 頒發 JWT token
-        return jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
+        String accessToken= jwtUtil.generateAccessToken(user.getId(), user.getEmail(), user.getRole().toString());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getEmail(), user.getRole().toString());
+
+        // save token
+        saveAllTokens(user.getId(), accessToken, refreshToken);
+
+        return new RefreshTokenResponse(accessToken, refreshToken);
+
+    }
+
+    public void saveAllTokens(long uid, String accessToken, String refreshToken) {
+
+        log.info("[debug] save to db, accessLength: {}, refreshTokenLength: {}",
+                accessTokenValidity, refreshTokenValidity);
+
+        List<Token> tokens = List.of(
+                Token.builder()
+                        .userId(uid)
+                        .token(accessToken)
+                        .tokenType(TokenType.ACCESS)
+                        .revoked(false)
+                        .expired(false)
+                        .createdAt(new Date())
+                        .expiresAt(new Date(System.currentTimeMillis() + accessTokenValidity))
+                        .build(),
+                Token.builder()
+                        .userId(uid)
+                        .token(refreshToken)
+                        .tokenType(TokenType.REFRESH)
+                        .revoked(false)
+                        .expired(false)
+                        .createdAt(new Date())
+                        .expiresAt(new Date(System.currentTimeMillis() + refreshTokenValidity))
+                        .build()
+        );
+
+        tokenRepository.saveAll(tokens);
     }
 }

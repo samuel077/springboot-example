@@ -1,30 +1,36 @@
 package com.example.trending.db.model;
 
+import com.example.trending.db.enums.TokenType;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.*;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "tokens")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Token {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(nullable = false)
+    private Long userId;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String refreshToken;
+    @Column(nullable = false, unique = true)
+    private String token;
 
-    @Column(name = "device_info")
-    private String deviceInfo;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TokenType tokenType; // ACCESS or REFRESH
 
-    @Column(name = "expires_at", nullable = false)
-    private LocalDateTime expiresAt;
+    private boolean revoked;
+    private boolean expired;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    // getters/setters
+    private Date createdAt;
+    private Date expiresAt;
 }

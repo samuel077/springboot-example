@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,9 +51,13 @@ public class TrendingController {
     }
 
     @GetMapping("/repos")
-    public RepoPageResponse getRepos(@RequestParam int page, @RequestParam int size) {
+    public RepoPageResponse getRepos(
+            @RequestParam int page,
+            @RequestParam int size,
+            Authentication authentication) {
+
+
         String cacheKey = "repos:page:" + page + ":size:" + size;
-        log.info("[Debug] cacheKey: {}", cacheKey);
 
         // 1. 嘗試從 Redis 拿資料
         Object cached = redisTemplate.opsForValue().get(cacheKey);
