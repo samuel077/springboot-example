@@ -1,7 +1,6 @@
 package com.example.trending.service;
 
 import com.example.trending.controller.model.auth.RefreshTokenResponse;
-import com.example.trending.controller.model.response.JwtResponse;
 import com.example.trending.db.enums.TokenType;
 import com.example.trending.db.model.MFACode;
 import com.example.trending.db.model.Token;

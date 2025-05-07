@@ -1,7 +1,5 @@
 package com.example.trending.utils;
 
-import com.example.trending.db.enums.TokenType;
-import com.example.trending.db.model.Token;
 import com.example.trending.db.repository.TokenRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
