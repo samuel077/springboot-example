@@ -14,13 +14,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns(
-                                "http://localhost:5173",
-                                "https://shuyu-lin.com"
-                        )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("Authorization", "Content-Type")
-                        .allowCredentials(true); // 如果前端有使用 credentials
+                        .allowedOriginPatterns("*") // 支援所有來源 (但不能配合 allowedOrigins("*") + credentials)
+                        .allowedMethods("*")        // GET, POST, PUT, DELETE, OPTIONS...
+                        .allowedHeaders("*")        // 允許所有 headers，包括 Authorization
+                        .allowCredentials(true)     // 允許攜帶 Cookie 或 Authorization
+                        .maxAge(3600);              // 預檢請求快取一小時
             }
         };
     }
