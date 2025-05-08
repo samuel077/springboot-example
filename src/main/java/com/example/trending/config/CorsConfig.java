@@ -13,18 +13,18 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOriginPatterns("*") // 支援所有來源 (但不能配合 allowedOrigins("*") + credentials)
-                        .allowedMethods("*")        // GET, POST, PUT, DELETE, OPTIONS...
-                        .allowedHeaders("*")        // 允許所有 headers，包括 Authorization
-                        .allowCredentials(true)     // 允許攜帶 Cookie 或 Authorization
-                        .maxAge(3600);              // 預檢請求快取一小時
-            }
-        };
-    }
+//    @Bean
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//            @Override
+//            public void addCorsMappings(CorsRegistry registry) {
+//                registry.addMapping("/**")
+//                        .allowedOriginPatterns("*") // 支援所有來源 (但不能配合 allowedOrigins("*") + credentials)
+//                        .allowedMethods("*")        // GET, POST, PUT, DELETE, OPTIONS...
+//                        .allowedHeaders("*")        // 允許所有 headers，包括 Authorization
+//                        .allowCredentials(true)     // 允許攜帶 Cookie 或 Authorization
+//                        .maxAge(3600);              // 預檢請求快取一小時
+//            }
+//        };
+//    }
 }

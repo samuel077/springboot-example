@@ -102,6 +102,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            log.info("[filter debugger] 5, bear is valid, token not expired.");
+
             // 5. 設定 SecurityContext
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role))

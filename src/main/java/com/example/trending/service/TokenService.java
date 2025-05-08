@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TokenService {
 
     private final TokenRepository tokenRepository;
@@ -53,10 +55,17 @@ public class TokenService {
             Claims claims = extractClaims(token);
 
             if (tokenRepository.findByTokenAndTokenType(token, TokenType.ACCESS).filter(t -> !t.isRevoked() && !t.isExpired()).isPresent())
+            {
+                log.info("token is valid, expire: {}", claims.getExpiration());
                 return claims.getExpiration().after(new Date());
-            else
+            }
+            else {
+                log.info("no record");
                 return false;
+            }
+
         } catch (JwtException e) {
+            log.error("[exception] e: {}", e.getMessage());
             return false;
         }
     }
