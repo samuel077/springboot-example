@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
@@ -33,17 +35,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // whitelist
+        log.info("[filter debugger] in the jwt filter");
+
         String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        log.info("path: {} and method: {}", path, method);
+
+        // 🛑 如果是預檢請求，直接放行（非常重要）
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            logger.info("✅ 預檢請求，跳過 JWT 驗證");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (path.startsWith("/api")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        log.info("[filter debugger] 1");
+
         if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        log.info("[filter debugger] 2");
 
         String authHeader = request.getHeader("Authorization");
 
@@ -55,6 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String jwt = authHeader.substring(7);
 
+        log.info("[filter debugger] 3, we have bear");
+
         try {
             // 1. 解析 JWT（會驗簽 + 過期判斷）
             Claims claims = jwtUtil.extractClaims(jwt);
@@ -65,6 +85,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.getWriter().write("Token expired");
                 return;
             }
+
+            log.info("[filter debugger] 4, bear is valid, token not expired.");
 
             // 3. 從 claims 取出 user 資訊
             Long userId = Long.parseLong(claims.getSubject());
@@ -84,10 +106,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (ExpiredJwtException e) {
+            log.error("[debug] exception 5");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token expired");
             return;
         } catch (JwtException | IllegalArgumentException e) {
+            log.error("[debug] exception 6");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid token");
             return;
