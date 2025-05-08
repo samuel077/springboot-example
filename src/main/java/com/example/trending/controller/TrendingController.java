@@ -65,6 +65,7 @@ public class TrendingController {
         if (cached != null) {
             log.info("[Debug] reading data from redis for page: {}", page);
             RepoPageResponse response = objectMapper.convertValue(cached, RepoPageResponse.class);
+            if (response.getContent().isEmpty()) redisTemplate.delete(cacheKey);
             return response;
         }
 
