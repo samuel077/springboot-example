@@ -9,7 +9,7 @@ spring:
     port: ${SPRING_REDIS_PORT}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
