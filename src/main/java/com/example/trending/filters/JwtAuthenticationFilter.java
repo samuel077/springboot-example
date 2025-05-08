@@ -36,9 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         log.info("[filter debugger] in the jwt filter");
-        log.info("Incoming {} request to {}", request.getMethod(), request.getRequestURI());
-        log.info("Origin: {}", request.getHeader("Origin"));
-        log.info("Access-Control-Request-Headers: {}", request.getHeader("Access-Control-Request-Headers"));
 
         String path = request.getRequestURI();
         String method = request.getMethod();
