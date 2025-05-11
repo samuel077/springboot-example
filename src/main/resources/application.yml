@@ -70,3 +70,7 @@ management:
     export:
       prometheus:
         enabled: true
+
+line:
+  bot:
+    token: ${LINE_BOT_TOKEN}

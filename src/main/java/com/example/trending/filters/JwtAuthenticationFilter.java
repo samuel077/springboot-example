@@ -28,6 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final TokenService tokenService;
+    private static final List<String> WHITELIST_PREFIXES = List.of(
+            "/api",
+            "/actuator",
+            "/favicon.ico",
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/alert/webhook"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -50,15 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (path.startsWith("/api") || path.startsWith("/actuator") || path.startsWith("favicon.ico")) {
+        if (isWhitelisted(path)) {
             log.info("[bypass] path: {}", path);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        log.info("[filter debugger] 1");
-
-        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -123,6 +124,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 6. 放行到下一層
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isWhitelisted(String path) {
+        return WHITELIST_PREFIXES.stream().anyMatch(path::startsWith);
     }
 }
 

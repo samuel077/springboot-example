@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 "/api/register",
                                 "/api/verify-mfa",
                                 "/actuator/prometheus",
+                                "/alert/webhook",
                                 "/favicon.ico",
                                 "/api/refresh").permitAll()
                         .anyRequest().authenticated()

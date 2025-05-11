@@ -1,0 +1,15 @@
+global:
+  resolve_timeout: 1m
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 1h
+  receiver: 'line-webhook'
+
+receivers:
+  - name: 'line-webhook'
+    webhook_configs:
+      - url: 'http://trending-app:8080/alert/webhook'
+        send_resolved: true

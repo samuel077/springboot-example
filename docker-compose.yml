@@ -46,6 +46,19 @@ services:
       - backend
     restart: always
 
+  alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    networks:
+      - backend
+    restart: always
+
 volumes:
   pgdata:
 
