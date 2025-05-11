@@ -50,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (path.startsWith("/api") || path.startsWith("/actuator")) {
+            log.info("[bypass] path: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
