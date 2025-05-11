@@ -37,7 +37,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 配合 bean 使用
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/login", "/api/register", "/api/verify-mfa", "/api/refresh").permitAll()
+                        .requestMatchers(
+                                "/api/login",
+                                "/api/register",
+                                "/api/verify-mfa",
+                                "/actuator/prometheus",
+                                "/api/refresh").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

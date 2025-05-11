@@ -56,3 +56,17 @@ cloud:
   sqs:
     queue-name: mfa-email-queue
     endpoint: https://sqs.ap-northeast-1.amazonaws.com/876997124426/mfa-email-queue
+
+# prometheus
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true

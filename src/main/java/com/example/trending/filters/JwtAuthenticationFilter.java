@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (path.startsWith("/api")) {
+        if (path.startsWith("/api") || path.startsWith("/actuator")) {
             filterChain.doFilter(request, response);
             return;
         }
