@@ -42,9 +42,16 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: |
-            docker-compose.yml
-            alertmanager.yml
+          source: docker-compose.yml alertmanager.yml
+          target: /home/ec2-user/app/
+
+      - name: 📤 Upload alert manager
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: alertmanager.yml
           target: /home/ec2-user/app/
 
       - name: 🚀 Update .env and deploy on EC2
