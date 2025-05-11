@@ -29,7 +29,7 @@ services:
       - backend
 
   app:
-    image: slin03/trending-app:latest
+    image: slin03/trending-app:${IMAGE_TAG}
     container_name: trending-app
     ports:
       - "8080:8080"
