@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -29,28 +30,41 @@ public class AlertWebhookController {
     public ResponseEntity<String> receiveAlert(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
         log.info("📨 Received alert: {}", payload);
 
-        // 這裡可以加 alert 判斷邏輯，例如只處理 status 為 "firing"
-        String message = "[ALERT] Something happened:\n" + payload.toString();
-        // ✅ 建議：escape 換行字元與引號
-        String safeMessage = message
-                .replace("\"", "\\\"")    // escape 雙引號
-                .replace("\n", "\\n");    // escape 換行
-
-        String body = """
-    {
-      "messages": [
-        {
-          "type": "text",
-          "text": "%s"
+        // 驗證是否為 firing 的 alert
+        String status = (String) payload.get("status");
+        if (!"firing".equalsIgnoreCase(status)) {
+            return ResponseEntity.ok("No firing alerts");
         }
-      ]
-    }
-    """.formatted(safeMessage);
+
+        // 組成訊息
+        StringBuilder msgBuilder = new StringBuilder();
+        msgBuilder.append("[ALERT] 🚨 Firing Alerts Received\n");
+
+        List<Map<String, Object>> alerts = (List<Map<String, Object>>) payload.get("alerts");
+        for (Map<String, Object> alert : alerts) {
+            Map<String, String> labels = (Map<String, String>) alert.get("labels");
+            Map<String, String> annotations = (Map<String, String>) alert.get("annotations");
+
+            String alertName = labels.getOrDefault("alertname", "UnknownAlert");
+            String instance = labels.getOrDefault("instance", "unknown-instance");
+            String severity = labels.getOrDefault("severity", "unknown");
+            String summary = annotations.getOrDefault("summary", "No summary provided.");
+
+            msgBuilder.append("\n🔔 Alert: ").append(alertName)
+                    .append("\n🖥 Instance: ").append(instance)
+                    .append("\n⚠ Severity: ").append(severity)
+                    .append("\n📝 Summary: ").append(summary)
+                    .append("\n");
+        }
+
+        String safeMessage = msgBuilder.toString()
+                .replace("\"", "\\\"")    // escape 雙引號
+                .replace("\n", "\\n");    // escape 換行（給 JSON 字串用）
 
         // 傳送到 LINE
-        sendLineBroadcast("test message from webhook");
+        sendLineBroadcast(safeMessage);
 
-        return ResponseEntity.ok("Alert received");
+        return ResponseEntity.ok("Firing alerts processed");
     }
 
     private void sendLineBroadcast(String msg) {
