@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         log.info("path: {} and method: {}", path, method);
+        log.info("new logs");
 
         // 🛑 如果是預檢請求，直接放行（非常重要）
         if ("OPTIONS".equalsIgnoreCase(method)) {
