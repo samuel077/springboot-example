@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (path.startsWith("/api") || path.startsWith("/actuator")) {
+        if (path.startsWith("/api") || path.startsWith("/actuator") || path.startsWith("favicon.ico")) {
             log.info("[bypass] path: {}", path);
             filterChain.doFilter(request, response);
             return;
@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Authorization header missing");
+            response.getWriter().write("Authorization header missing 1");
             return;
         }
 
